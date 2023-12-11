@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="condicion">Text in Land (EN)</string>
+    <color name="Mycolor">#FF018786</color>
+    <color name="background">#FF3333</color>
+</resources>

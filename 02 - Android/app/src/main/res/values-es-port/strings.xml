@@ -1,0 +1,5 @@
+<resources>
+    <string name="condicion">Texto en Port (ES)</string>
+    <color name="Mycolor">#FF3333</color>
+    <color name="background">#000000</color>
+</resources>

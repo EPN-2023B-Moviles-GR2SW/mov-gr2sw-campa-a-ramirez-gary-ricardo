@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name" translatable="false">B2023gr2sw</string>
+    <string name="title_activity_aresources" translatable="false">AResources</string>
+    <string name="condicion">Texto por defecto</string>
+</resources>
