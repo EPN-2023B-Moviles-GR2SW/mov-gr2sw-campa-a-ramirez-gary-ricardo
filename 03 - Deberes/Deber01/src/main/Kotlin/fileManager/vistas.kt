@@ -1,6 +1,8 @@
 package fileManager
 import model.dao.DepartamentoDAO
 import model.dao.EmpleadoDAO
+import model.dao.imp.DepartamentoDAOImpl
+import model.dao.imp.EmpleadoDAOImpl
 import model.entity.Departamento
 import model.entity.Empleado
 import java.time.LocalDate
@@ -8,10 +10,10 @@ import java.util.*
 import kotlin.system.exitProcess
 
 @Suppress("UNREACHABLE_CODE")
-class teclado {
+class vistas {
 
-    private val departamentoDAO: DepartamentoDAO = DepartamentoDAO(manager("src/main/kotlin/archivos/departamentos.txt"))
-    private val empleadoDAO: EmpleadoDAO = EmpleadoDAO(manager("src/main/kotlin/archivos/empleados.txt"))
+    private val departamentoDAO: DepartamentoDAO = DepartamentoDAOImpl(manager("src/main/kotlin/data/departamentos.txt"))
+    private val empleadoDAO: EmpleadoDAO = EmpleadoDAOImpl(manager("src/main/kotlin/data/empleados.txt"))
     private val scanner: Scanner = Scanner(System.`in`)
 
     fun start() {
@@ -82,95 +84,24 @@ class teclado {
     private fun readMenuOption(): Int {
         print("Ingresa una opción: ")
         val input = scanner.nextLine()
+
+        println("El valor ingresado es:$input")
         return try {
             input.toInt()
         } catch (e: NumberFormatException) {
-            println("Opción inválida. Cerrando la aplicación...")
+            println("Opcion invalida, cerrando el sistema...")
             exitProcess(0)
-            -1 // Valor de retorno para indicar un error
+            -1
         }
     }
 
-    private fun createDepartamento() {
-        println("==== Crear Departamento ====")
-        print("Ingresa el nombre del Departamento: ")
-        val nombre = scanner.nextLine()
-
-        print("Ingresa la ubicación del Departamento: ")
-        val ubicacion = scanner.nextLine()
-
-        print("Ingresa el número de empleados en el Departamento: ")
-        val nEmpleados = scanner.nextInt()
-
-        scanner.nextLine() // Limpiar el buffer del scanner
-
-        print("Ingresa el equipo remoto (true/false): ")
-        val equipoRemoto = scanner.nextBoolean()
-
-        // Fecha establecida automáticamente por el sistema
-        val fechaCreacion = LocalDate.now()
-
-        // Crear un objeto Departamento con todas las propiedades
-        val departamento = Departamento(16,nombre, ubicacion, nEmpleados, fechaCreacion, equipoRemoto, mutableListOf())
-        departamentoDAO.create(departamento)
-        println("\n\nNuevo Departamento Añadido")
-    }
-
-    private fun showAllDepartamentos() {
-        println("==== Mostrar todos los Departamentos ====")
-        val departamentos = departamentoDAO.getAll()
-
-        if (departamentos.isEmpty() || departamentos.equals(null)) {
-            println("No hay Departamentos disponibles")
-        } else {
-            for (departamento in departamentos) {
-                println(departamento)
-            }
-        }
-    }
-
-    private fun updateDepartamento() {
-        println("==== Actualizar Departamento ====")
-        print("Ingresa el nombre del Departamento a actualizar: ")
-        val nombre = scanner.nextLine()
-
-        print("Ingresa la nueva ubicación del Departamento: ")
-        val nuevaUbicacion = scanner.nextLine()
-
-        print("Ingresa el nuevo número de empleados en el Departamento: ")
-        val nuevoNEmpleados = scanner.nextInt()
-
-        scanner.nextLine() // Limpiar el buffer del scanner
-
-        print("Ingresa el nuevo equipo remoto (true/false): ")
-        val nuevoEquipoRemoto = scanner.nextBoolean()
-
-        // Fecha establecida automáticamente por el sistema
-        val nuevaFechaCreacion = LocalDate.now()
-
-        // Crear un objeto Departamento con las propiedades actualizadas
-        val departamento = Departamento(nombre, nuevaUbicacion, nuevoNEmpleados, nuevaFechaCreacion, nuevoEquipoRemoto, mutableListOf())
-        departamentoDAO.updateDepartamento(departamento)
-        println("\n\nDepartamento actualizado exitosamente")
-    }
-
-    private fun deleteDepartamento() {
-        println("==== Eliminar Departamento ====")
-        print("Ingresa el nombre del Departamento a eliminar: ")
-        val nombre = scanner.nextLine()
-
-        // Crear un objeto Departamento solo con el nombre para eliminarlo
-        val departamento = Departamento(nombre, "", 0, LocalDate.now(), false, mutableListOf())
-        departamentoDAO.deleteDepartamento(departamento)
-        println("\nDepartamento eliminado exitosamente")
-    }
-
+    //PRIMERA PARTE EMPLEADOS
     private fun createEmpleado() {
         println("==== Crear Empleado ====")
         print("Ingresa el nombre del Empleado: ")
         val nombre = scanner.nextLine()
 
-        print("Ingresa el cargo del Empleado: ")
+        print("Ingresa el cargo que va a desempeñar el Empleado: ")
         val cargo = scanner.nextLine()
 
         print("Ingresa el salario del Empleado: ")
@@ -185,15 +116,15 @@ class teclado {
         val isActive = scanner.nextBoolean()
 
         // Crear un objeto Empleado con todas las propiedades
-        val empleado = Empleado(nombre, cargo, salario, fechaContratacion, isActive)
-        empleadoDAO.createEmpleado(empleado)
-        println("\n\nEmpleado creado exitosamente")
+        val empleado = Empleado(empleadoDAO.getAll().size+1,nombre, cargo, salario, fechaContratacion, isActive)
+        empleadoDAO.create(empleado)
+        println("\nEmpleado creado exitosamente")
+        scanner.nextLine() //Limpiamos el buffer
     }
 
     private fun showAllEmpleados() {
         println("==== Mostrar todos los Empleados ====")
-        val empleados = empleadoDAO.getAllEmpleados()
-
+        val empleados = empleadoDAO.getAll()
         if (empleados.isEmpty()) {
             println("No hay Empleados disponibles")
         } else {
@@ -204,38 +135,170 @@ class teclado {
     }
 
     private fun updateEmpleado() {
+        showAllEmpleados()
+
         println("==== Actualizar Empleado ====")
-        print("Ingresa el nombre del Empleado a actualizar: ")
-        val nombre = scanner.nextLine()
+        print("Ingresa el ID del empleado a actualizar: ")
+        val id = scanner.nextInt()
+        scanner.nextLine() // Consumir la línea en blanco restante
 
-        print("Ingresa el nuevo cargo del Empleado: ")
-        val nuevoCargo = scanner.nextLine()
+        // Obtener el empleado actual
+        val empleadoActual = empleadoDAO.getById(id)
+        if (empleadoActual == null) {
+            println("No se encontró un empleado con el ID $id.")
+            return
+        }
 
-        print("Ingresa el nuevo salario del Empleado: ")
-        val nuevoSalario = scanner.nextDouble()
+        // Mostrar las propiedades actuales del empleado
+        println("Empleado actual: $empleadoActual")
+
+        // Permitir al usuario actualizar propiedades individuales
+        print("Ingresa el nuevo nombre del Empleado (o deja en blanco para mantener el actual): ")
+        val nuevoNombre = scanner.nextLine().takeIf { it.isNotBlank() } ?: empleadoActual.getName()
+
+        print("Ingresa el nuevo cargo del Empleado (o deja en blanco para mantener el actual): ")
+        val nuevoCargo = scanner.nextLine().takeIf { it.isNotBlank() } ?: empleadoActual.getPosition()
+
+        print("Ingresa el nuevo salario del Empleado (o deja en blanco para mantener el actual): ")
+        val nuevoSalario = scanner.nextDouble().takeIf { it > 0 } ?: empleadoActual.getSalary()
 
         scanner.nextLine() // Limpiar el buffer del scanner
 
-        // Fecha establecida automáticamente por el sistema
-        val nuevaFechaContratacion = LocalDate.now()
-
-        print("Ingresa si el Empleado está activo (true/false): ")
-        val nuevoIsActive = scanner.nextBoolean()
+        print("El Empleado está activo (true/false, deja en blanco para mantener el actual): ")
+        val nuevoIsActive = scanner.nextLine().takeIf { it.isNotBlank() }?.toBoolean() ?: empleadoActual.getActive()
 
         // Crear un objeto Empleado con las propiedades actualizadas
-        val empleado = Empleado(nombre, nuevoCargo, nuevoSalario, nuevaFechaContratacion, nuevoIsActive)
-        empleadoDAO.updateEmpleado(empleado)
+        val empleadoActualizado = Empleado(id, nuevoNombre, nuevoCargo, nuevoSalario, empleadoActual.getDateHire(), nuevoIsActive)
+
+        // Llamar al método update de EmpleadoDAO para aplicar los cambios
+        empleadoDAO.update(empleadoActualizado)
         println("\n\nEmpleado actualizado exitosamente")
     }
 
+
     private fun deleteEmpleado() {
         println("==== Eliminar Empleado ====")
-        print("Ingresa el nombre del Empleado a eliminar: ")
+        showAllEmpleados()
+        print("Ingresa el ID del Empleado a eliminar: ")
+        val id = scanner.nextInt()
+        empleadoDAO.delete(id)
+        println("\nEmpleado eliminado exitosamente")
+        scanner.nextLine() //Limpiamos el buffer
+    }
+
+    //SEGUNDA PARTE DEPTOS
+    private fun createDepartamento() {
+        println("==== Crear Departamento ====")
+        print("Ingresa el nombre del Departamento: ")
         val nombre = scanner.nextLine()
 
-        // Crear un objeto Empleado solo con el nombre para eliminarlo
-        val empleado = Empleado(nombre, "", 0.0, LocalDate.now(), false)
-        empleadoDAO.deleteEmpleado(empleado)
-        println("\nEmpleado eliminado exitosamente")
+        print("Ingresa la ubicación del Departamento: ")
+        val ubicacion = scanner.nextLine()
+
+        print("Ingresa el número de empleados en el Departamento: ")
+        val nEmpleados = scanner.nextInt()
+        scanner.nextLine() // Limpiar el buffer del scanner
+
+        print("El equipo remoto es remoto? (true/false): ")
+        val equipoRemoto = scanner.nextBoolean()
+        scanner.nextLine() // Limpiar el buffer del scanner
+
+        // Fecha establecida automáticamente por el sistema
+        val fechaCreacion = LocalDate.now()
+
+        // Crear un objeto Departamento con todas las propiedades
+        val departamento = Departamento(
+            departamentoDAO.getAll().size + 1,
+            nombre,
+            ubicacion,
+            nEmpleados,
+            fechaCreacion,
+            equipoRemoto,
+            mutableListOf()
+        )
+        departamentoDAO.create(departamento)
+
+        // Comentado para evitar consumir una línea en blanco en el buffer del scanner
+        // showAllEmpleados()
+
+        // Agregar empleados al departamento
+        for (i in 1..nEmpleados) {
+            print("Ingresa el id del empleado $i a agregar al Departamento: ")
+            val empleadoId = scanner.nextInt()
+            scanner.nextLine() // Limpiar el buffer del scanner
+
+            // Buscar el empleado por su id y agregarlo al departamento
+            val empleado = empleadoDAO.getById(empleadoId)
+            if (empleado != null) {
+                departamento.addEmpleado(empleado)
+                println("Empleado ${empleado.getName()} con ID $empleadoId agregado al Departamento.")
+            } else {
+                println("No se encontró un empleado con el id $empleadoId.")
+            }
+        }
+        // Guardar los cambios en el departamento después de agregar empleados
+        departamentoDAO.update(departamento)
+        println("\nNuevo Departamento Añadido con Empleados")
     }
+
+
+    private fun showAllDepartamentos() {
+        println("==== Listando departamentos ====")
+        val departamentos = departamentoDAO.getAll()
+
+        if (departamentos.isEmpty()) {
+            println("No hay Departamentos disponibles")
+        } else {
+            for (departamento in departamentos) {
+                println(departamento)
+            }
+        }
+    }
+
+    private fun updateDepartamento() {
+        showAllDepartamentos()
+
+        println("==== Actualizar Departamento ====")
+        print("Ingresa el ID del departamento a actualizar: ")
+        val id = scanner.nextInt()
+
+        println("Departamento escogido: ")
+        departamentoDAO.getById(id)
+
+        print("Ingresa el nuevo nombre del departamento: ")
+        val nombre = scanner.nextLine()
+
+        print("Ingresa la nueva ubicación del Departamento: ")
+        val nuevaUbicacion = scanner.nextLine()
+
+        print("Ingresa el nuevo número de empleados en el Departamento: ")
+        val nuevoNEmpleados = scanner.nextInt()
+
+        scanner.nextLine() // Limpiar el buffer del scanner
+
+        print("El equipo que se está actualizando es remoto? (true/false): ")
+        val nuevoEquipoRemoto = scanner.nextBoolean()
+
+        // Fecha establecida automáticamente por el sistema
+        val nuevaFechaCreacion = LocalDate.now()
+
+        // Crear un objeto Departamento con las propiedades actualizadas
+        val departamento = Departamento(id,nombre, nuevaUbicacion, nuevoNEmpleados, nuevaFechaCreacion, nuevoEquipoRemoto, mutableListOf())
+        departamentoDAO.update(departamento)
+        println("\n\nDepartamento actualizado exitosamente")
+    }
+
+    private fun deleteDepartamento() {
+        showAllDepartamentos()
+
+        println("==== Eliminar Departamento ====")
+        print("Ingresa el ID del departamento a eliminar: ")
+        val id = scanner.nextInt()
+
+        departamentoDAO.delete(id)
+        println("\nDepartamento eliminado exitosamente")
+        scanner.nextLine() //Limpiamos el buffer
+    }
+
+
 }

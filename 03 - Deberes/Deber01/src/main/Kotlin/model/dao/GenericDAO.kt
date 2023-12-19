@@ -1,4 +1,4 @@
-package dao
+package model.dao
 //Las clases y sus miembros son públicos por defecto
 interface GenericDAO<T, ID> {
     //Se crea esta clase puesto que siempre se va aplicar los mismos metodos para las demas clases

@@ -1,14 +1,44 @@
-package dao.imp
+package model.dao.imp
 
-import dao.EmpleadoDAO
-import entity.Empleado
+import fileManager.manager
+import model.dao.EmpleadoDAO
+import model.entity.Empleado
 import java.time.LocalDate
 
-class EmpleadoDAOImpl: EmpleadoDAO{
+class EmpleadoDAOImpl(private val fileHander: manager): EmpleadoDAO {
 
     //Usamos var porque se va añadiendo a la lista
     private var empleados: MutableList<Empleado>? = null
     val date = LocalDate.now()
+
+    init {
+        // Load data from the file when the class is initialized
+        this.empleados = loadData()
+    }
+
+    private fun loadData(): MutableList<Empleado> {
+        try {
+            val dataLines = fileHander.readData()
+            return dataLines.map { line ->
+                val tokens = line.split(",")
+
+                val id = tokens[0].toInt()
+                val name = tokens[1]
+                val position = tokens[2]
+                val salary = tokens[3].toDouble()
+                val date = LocalDate.parse(tokens[4]) // Assuming date is formatted as text
+                val isActive = tokens[5].toBoolean()
+
+                Empleado(id, name, position, salary, date, isActive)
+            }.toMutableList()
+        } catch (e: Exception) {
+            println("Error loading data: ${e.message}")
+            // Handle the error appropriately, such as logging or throwing a custom exception
+            return mutableListOf()
+        }
+    }
+
+
     override fun getById(id: Int): Empleado? {
         val empleados = this.empleados
         if (empleados != null) {
@@ -19,6 +49,8 @@ class EmpleadoDAOImpl: EmpleadoDAO{
             }
         }
         return null
+
+        //Esto se puede reemplazar con return empleados?.find { it.getId() == id }
     }
 
     override fun getAll(): MutableList<Empleado> {
@@ -42,33 +74,44 @@ class EmpleadoDAOImpl: EmpleadoDAO{
             empleados?.add(Empleado(15, "Alejandro", "Full Stack Developer", 1900.00, date, true))
 
         }
+        save(empleados!!)
         return empleados as MutableList<Empleado>
     }
 
     override fun create(e: Empleado) {
-        this.getAll().add(e)
+        val lista = getAll()
+        lista.add(e)
+        save(lista)
     }
 
     //Se usa el operador "?" dado que es nulleable
     //Se añade los parentesis () dado que se espera un "Int" y no un "Int?"
     override fun update(e: Empleado) {
-        for (i in 0 until (empleados?.size ?: 0)) {
-            if (empleados?.get(i)?.getIdEmployee() == e.getIdEmployee()) {
-                empleados?.set(i, e)
+        val emp = getAll()
+        for (i in 0 until emp.size) {
+            if (emp.get(i).getIdEmployee() == e.getIdEmployee()) {
+                emp.set(i, e)
+                save(emp)
             }
         }
     }
 
     override fun delete(id: Int) {
-        for(i in 0 until (empleados?.size?:0)){
-            if(empleados?.get(i)?.getIdEmployee() == id){
-                empleados?.removeAt(i)
+        val emp = getAll()
+        for(i in 0 until emp.size){
+            if(emp.get(i).getIdEmployee() == id){
+                emp.removeAt(i)
+                save(emp)
             }
         }
+
     }
 
     override fun save(e: List<Empleado>) {
-        TODO("Not yet implemented")
+        val empleadoData = e.map {emp ->
+            "${emp.getIdEmployee()}, ${emp.getName()},${emp.getPosition()},${emp.getSalary()},${emp.getDateHire()},${emp.getActive()}"
+        }
+        fileHander.writeData(empleadoData)
     }
 
 }

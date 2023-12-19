@@ -1,4 +1,4 @@
-package entity
+package model.entity
 
 import java.time.LocalDate
 
@@ -16,5 +16,34 @@ class Departamento(
     fun getidDepto(): Int {
         return idDepto
     }
+
+    fun getName(): String{
+        return name
+    }
+    fun getLocation():String{
+        return location
+    }
+    fun getNEmployees():Int{
+        return nEmployees
+    }
+    fun getDateCreate():LocalDate{
+        return dateCreate
+    }
+    fun getTeamRemote():Boolean{
+        return teamRemote
+    }
+
+    fun getListEmployees():List<Empleado>{
+        return listEmployees
+    }
+    fun addEmpleado(empleado: Empleado) {
+        listEmployees.add(empleado)
+    }
+    override fun toString(): String {
+        val employeeString = listEmployees.joinToString(", ") { it.toString() }
+        return "[$idDepto, '$name', '$location', $nEmployees, $dateCreate, $teamRemote, [$employeeString]]"
+    }
+
+
 
 }

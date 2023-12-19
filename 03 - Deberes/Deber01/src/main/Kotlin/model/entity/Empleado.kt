@@ -1,4 +1,4 @@
-package entity
+package model.entity
 
 import java.time.LocalDate
 
@@ -18,6 +18,26 @@ class Empleado(
     fun getIdEmployee(): Int {
         return idEmployee
     }
+    fun getName():String{
+        return name
+    }
+    fun getPosition():String{
+        return position
+    }
+    fun getSalary():Double{
+        return salary
+    }
+    fun getDateHire():LocalDate{
+        return dateHire
+    }
+    fun getActive():Boolean{
+        return isActive
+    }
+
+    override fun toString(): String {
+        return "[$idEmployee, '$name', '$position', $salary, $dateHire, $isActive]"
+    }
+
 
 
 }
