@@ -35,7 +35,7 @@ class Empleado(
     }
 
     override fun toString(): String {
-        return "[$idEmployee, '$name', '$position', $salary, $dateHire, $isActive]"
+        return "[$idEmployee, $name, $position, $salary, $dateHire, $isActive]"
     }
 
 

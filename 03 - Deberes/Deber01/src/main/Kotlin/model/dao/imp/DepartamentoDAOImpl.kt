@@ -19,25 +19,23 @@ class DepartamentoDAOImpl(private val fileHander:manager): DepartamentoDAO {
     private fun loadData(): MutableList<Departamento> {
         try {
             val dataLines = fileHander.readData()
-
             val parsedDepartamentos = dataLines.map { line ->
-                val tokens = line.split(",")
+                val tokens = line.split(", ")
 
-                val idDepto = tokens[0].toInt()
-                val name = tokens[1]
-                val location = tokens[2]
-                val nEmployees = tokens[3].toInt()
-                val dateCreate = LocalDate.parse(tokens[4]) // Assuming date is formatted as text
-                val teamRemote = tokens[5].toBoolean()
+                val idDepto = tokens[0].trim().toInt()
+                val name = tokens[1].trim()
+                val location = tokens[2].trim()
+                val nEmployees = tokens[3].trim().toInt()
+                val dateCreate = LocalDate.parse(tokens[4].trim()) // Assuming date is formatted as text
+                val teamRemote = tokens[5].trim().toBoolean()
 
                 val employees = if (tokens.size > 6) {
-                    val employeeData = tokens.subList(6, tokens.size).joinToString(",")
+                    val employeeData = tokens.subList(6, tokens.size).joinToString(", ")
                     val employeeList = parseEmployeeList(employeeData)
                     employeeList.toMutableList()
                 } else {
                     mutableListOf()
                 }
-
                 Departamento(idDepto, name, location, nEmployees, dateCreate, teamRemote, employees)
             }.toMutableList()
 
@@ -51,17 +49,23 @@ class DepartamentoDAOImpl(private val fileHander:manager): DepartamentoDAO {
 
     private fun parseEmployeeList(employeeData: String): List<Empleado> {
         val employeeList = mutableListOf<Empleado>()
-        val regex = Regex("\\[([^\\]]+)\\]")
-        val matches = regex.findAll(employeeData)
 
-        for (match in matches) {
-            val employeeTokens = match.groupValues[1].split(",").map { it.trim() }
-            val id = employeeTokens[0].toInt()
-            val name = employeeTokens[1]
-            val position = employeeTokens[2]
-            val salary = employeeTokens[3].toDouble()
-            val date = LocalDate.parse(employeeTokens[4]) // Assuming date is formatted as text
-            val isActive = employeeTokens[5].toBoolean()
+        // Extraer la cadena de empleados dentro de las llaves
+        val employeesString = employeeData.substring(1, employeeData.length - 1)
+
+        // Dividir la cadena de empleados en una lista de cadenas de empleado
+        val employeeTokens = employeesString.split("], [")
+
+        for (employeeToken in employeeTokens) {
+            // Eliminar corchetes restantes y dividir los datos del empleado
+            val employeeValues = employeeToken.replace("[", "").replace("]", "").split(", ")
+
+            val id = employeeValues[0].toInt()
+            val name = employeeValues[1]
+            val position = employeeValues[2]
+            val salary = employeeValues[3].toDouble()
+            val date = LocalDate.parse(employeeValues[4])
+            val isActive = employeeValues[5].toBoolean()
 
             val employee = Empleado(id, name, position, salary, date, isActive)
             employeeList.add(employee)
@@ -69,6 +73,8 @@ class DepartamentoDAOImpl(private val fileHander:manager): DepartamentoDAO {
 
         return employeeList
     }
+
+
 
 
     override fun getById(id: Int): Departamento? {
@@ -138,7 +144,6 @@ class DepartamentoDAOImpl(private val fileHander:manager): DepartamentoDAO {
     }
 
     override fun update(d: Departamento) {
-        getAll()
         for (i in 0 until this.departamentos!!.size) {
             if (this.departamentos!!.get(i).getidDepto() == d.getidDepto()) {
                 this.departamentos!!.set(i, d)
@@ -146,6 +151,7 @@ class DepartamentoDAOImpl(private val fileHander:manager): DepartamentoDAO {
             }
         }
     }
+
 
     override fun delete(id: Int) {
         for(i in 0 until this.departamentos!!.size){
@@ -159,7 +165,7 @@ class DepartamentoDAOImpl(private val fileHander:manager): DepartamentoDAO {
     override fun save(d: List<Departamento>) {
         val deptoData = d.map { depto ->
             val listEmployees = depto.getListEmployees().joinToString(", ") { it.toString() }
-            "${depto.getidDepto()}, '${depto.getName()}', '${depto.getLocation()}', ${depto.getNEmployees()}, ${depto.getDateCreate()}, ${depto.getTeamRemote()}, [$listEmployees]"
+            "${depto.getidDepto()}, ${depto.getName()}, ${depto.getLocation()}, ${depto.getNEmployees()}, ${depto.getDateCreate()}, ${depto.getTeamRemote()}, {$listEmployees}"
         }
         fileHander.writeData(deptoData)
     }

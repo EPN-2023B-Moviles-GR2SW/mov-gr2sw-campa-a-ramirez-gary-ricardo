@@ -20,7 +20,7 @@ class EmpleadoDAOImpl(private val fileHander: manager): EmpleadoDAO {
         try {
             val dataLines = fileHander.readData()
             return dataLines.map { line ->
-                val tokens = line.split(",")
+                val tokens = line.split(", ")
 
                 val id = tokens[0].toInt()
                 val name = tokens[1]
@@ -54,7 +54,7 @@ class EmpleadoDAOImpl(private val fileHander: manager): EmpleadoDAO {
     }
 
     override fun getAll(): MutableList<Empleado> {
-        if(empleados == null){
+        if(empleados.isNullOrEmpty()){
             empleados = ArrayList()
             // Agregar elementos a la lista
             empleados?.add(Empleado(1, "Juan", "Product manager", 2000.00, date, true))
@@ -85,7 +85,6 @@ class EmpleadoDAOImpl(private val fileHander: manager): EmpleadoDAO {
     }
 
     //Se usa el operador "?" dado que es nulleable
-    //Se añade los parentesis () dado que se espera un "Int" y no un "Int?"
     override fun update(e: Empleado) {
         val emp = getAll()
         for (i in 0 until emp.size) {
@@ -109,7 +108,7 @@ class EmpleadoDAOImpl(private val fileHander: manager): EmpleadoDAO {
 
     override fun save(e: List<Empleado>) {
         val empleadoData = e.map {emp ->
-            "${emp.getIdEmployee()}, ${emp.getName()},${emp.getPosition()},${emp.getSalary()},${emp.getDateHire()},${emp.getActive()}"
+            "${emp.getIdEmployee()}, ${emp.getName()}, ${emp.getPosition()}, ${emp.getSalary()}, ${emp.getDateHire()}, ${emp.getActive()}"
         }
         fileHander.writeData(empleadoData)
     }

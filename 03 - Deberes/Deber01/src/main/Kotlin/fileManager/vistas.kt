@@ -261,32 +261,54 @@ class vistas {
         println("==== Actualizar Departamento ====")
         print("Ingresa el ID del departamento a actualizar: ")
         val id = scanner.nextInt()
+        scanner.nextLine() // Consumir la línea en blanco restante
 
-        println("Departamento escogido: ")
-        departamentoDAO.getById(id)
+        // Obtener el departamento actual
+        val departamentoActual = departamentoDAO.getById(id)
+        if (departamentoActual == null) {
+            println("No se encontró un departamento con el ID $id.")
+            return
+        }
 
-        print("Ingresa el nuevo nombre del departamento: ")
-        val nombre = scanner.nextLine()
+        // Mostrar las propiedades actuales del departamento
+        println("Departamento actual: $departamentoActual")
 
-        print("Ingresa la nueva ubicación del Departamento: ")
-        val nuevaUbicacion = scanner.nextLine()
+        // Obtener el número de empleados actual
+        val nEmpleadosActual = departamentoActual.getNEmployees()
 
-        print("Ingresa el nuevo número de empleados en el Departamento: ")
-        val nuevoNEmpleados = scanner.nextInt()
+        // Permitir al usuario actualizar propiedades individuales
+        print("Ingresa el nuevo nombre del Departamento (o deja en blanco para mantener el actual): ")
+        val nuevoNombre = scanner.nextLine().takeIf { it.isNotBlank() } ?: departamentoActual.getName()
 
-        scanner.nextLine() // Limpiar el buffer del scanner
+        print("Ingresa la nueva ubicación del Departamento (o deja en blanco para mantener la actual): ")
+        val nuevaUbicacion = scanner.nextLine().takeIf { it.isNotBlank() } ?: departamentoActual.getLocation()
 
-        print("El equipo que se está actualizando es remoto? (true/false): ")
-        val nuevoEquipoRemoto = scanner.nextBoolean()
+        print("Ingresa el nuevo número de empleados en el Departamento (o deja en blanco para mantener el actual): ")
+        val nuevoNEmpleadosInput = scanner.nextLine().trim()
+        val nuevoNEmpleados = if (nuevoNEmpleadosInput.isNotBlank()) {
+            nuevoNEmpleadosInput.toIntOrNull()?.takeIf { it > 0 } ?: nEmpleadosActual
+        } else {
+            nEmpleadosActual
+        }
 
-        // Fecha establecida automáticamente por el sistema
-        val nuevaFechaCreacion = LocalDate.now()
+        // Ajustar la lista de empleados si el número de empleados ha cambiado
+        val nuevosEmpleados = if (nEmpleadosActual != nuevoNEmpleados) {
+            departamentoActual.getListEmployees().take(nuevoNEmpleados).toMutableList()
+        } else {
+            departamentoActual.getListEmployees()
+        }.toMutableList()
+
+        print("El equipo que se está actualizando es remoto? (true/false, deja en blanco para mantener el actual): ")
+        val nuevoEquipoRemoto = scanner.nextLine().takeIf { it.isNotBlank() }?.toBoolean() ?: departamentoActual.getTeamRemote()
 
         // Crear un objeto Departamento con las propiedades actualizadas
-        val departamento = Departamento(id,nombre, nuevaUbicacion, nuevoNEmpleados, nuevaFechaCreacion, nuevoEquipoRemoto, mutableListOf())
-        departamentoDAO.update(departamento)
+        val departamentoActualizado = Departamento(id, nuevoNombre, nuevaUbicacion, nuevoNEmpleados, LocalDate.now(), nuevoEquipoRemoto, nuevosEmpleados)
+
+        // Llamar al método update de DepartamentoDAO para aplicar los cambios
+        departamentoDAO.update(departamentoActualizado)
         println("\n\nDepartamento actualizado exitosamente")
     }
+
 
     private fun deleteDepartamento() {
         showAllDepartamentos()

@@ -41,7 +41,7 @@ class Departamento(
     }
     override fun toString(): String {
         val employeeString = listEmployees.joinToString(", ") { it.toString() }
-        return "[$idDepto, '$name', '$location', $nEmployees, $dateCreate, $teamRemote, [$employeeString]]"
+        return "$idDepto, $name, $location, $nEmployees, $dateCreate, $teamRemote, {$employeeString}"
     }
 
 
