@@ -13,6 +13,20 @@
         android:theme="@style/Theme.AppCompat.Light"
         tools:targetApi="31">
         <activity
+            android:name=".FRecyclerView"
+            android:exported="false" />
+        <activity
+            android:name=".ECrudEntrenador"
+            android:exported="false" />
+        <activity
+            android:name=".CIntentExplicitoParametros"
+            android:exported="false" />
+        <activity
+            android:name=".ClntentExplicitoParametros"
+            android:exported="false"
+            android:label="@string/title_activity_clntent_explicito_parametros"
+            android:theme="@style/Theme.AppCompat.Light" />
+        <activity
             android:name=".BListView"
             android:exported="false" />
         <activity

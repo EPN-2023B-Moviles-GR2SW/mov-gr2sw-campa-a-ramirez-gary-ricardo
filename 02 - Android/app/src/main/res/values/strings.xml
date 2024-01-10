@@ -7,4 +7,5 @@
         <item>Martes</item>
         <item>Miercoles</item>
     </string-array>
+    <string name="title_activity_clntent_explicito_parametros">ClntentExplicitoParametros</string>
 </resources>
