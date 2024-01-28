@@ -66,6 +66,8 @@ class MainActivity : AppCompatActivity() {
         EBaseDeDatos.tablaEntrenador = ESqliteHelperEntrenador(
             this
         )
+
+
         val botonCicloVida = findViewById<Button>(R.id.btn_ciclo_vida)
         botonCicloVida
             .setOnClickListener {
@@ -77,7 +79,6 @@ class MainActivity : AppCompatActivity() {
             .setOnClickListener {
                 irActividad(BListView::class.java)
             }
-
         val botonIntentImplicito = findViewById<Button>(
             R.id.btn_ir_intent_implicito)
         botonIntentImplicito
@@ -108,7 +109,20 @@ class MainActivity : AppCompatActivity() {
                 irActividad(FRecyclerView::class.java)
             }
 
-    }
+        val botonGoogleMaps = findViewById<Button>(R.id.btn_google_maps)
+        botonGoogleMaps
+            .setOnClickListener {
+                irActividad(GGoogleMapsActivity::class.java)
+            }
+
+        val botonFirebaseUI = findViewById<Button>(R.id.btn_intent_firebase_ui)
+        botonFirebaseUI
+            .setOnClickListener {
+                irActividad(HFirebaseUIAuth::class.java)
+            }
+
+
+    } // Termina on Create
     fun abrirActividadConParametros(
         clase: Class<*>
     ){

@@ -11,7 +11,7 @@ class ACicloVida : AppCompatActivity() {
 
     fun mostrarSnackbar(texto:String){
         textoGlobal += texto;
-        val snack = Snackbar.make(findViewById(R.id.cl_cliclo_vida), textoGlobal, Snackbar.LENGTH_INDEFINITE)
+        val snack = Snackbar.make(findViewById(R.id.cl_ciclo_vida), textoGlobal, Snackbar.LENGTH_INDEFINITE)
         snack.show();
     }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +49,7 @@ class ACicloVida : AppCompatActivity() {
         outState.run{
             //Guardar variables
             //Solo primitivos
-            putString("TextoGuardado", textoGlobal)
+            putString("textoGuardado", textoGlobal)
         }
         super.onSaveInstanceState(outState)
     }
@@ -60,7 +60,7 @@ class ACicloVida : AppCompatActivity() {
         //PRIMITIVAS
 
         val textoRecuperado:String? = savedInstanceState
-            .getString("Texto Guardado")
+            .getString("texto Guardado")
         if(textoRecuperado != null){
             mostrarSnackbar(textoRecuperado)
             textoGlobal = textoRecuperado
