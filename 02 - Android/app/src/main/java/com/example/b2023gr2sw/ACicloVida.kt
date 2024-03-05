@@ -58,7 +58,7 @@ class ACicloVida : AppCompatActivity() {
         super.onRestoreInstanceState(savedInstanceState)
         //RECUPERAR VARIABLES
         //PRIMITIVAS
-
+        //TODO: Añadir el IFileStore
         val textoRecuperado:String? = savedInstanceState
             .getString("texto Guardado")
         if(textoRecuperado != null){
